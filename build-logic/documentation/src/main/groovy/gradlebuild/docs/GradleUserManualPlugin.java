@@ -16,6 +16,7 @@
 
 package gradlebuild.docs;
 
+import gradlebuild.basics.Gradle9PropertyUpgradeSupport;
 import gradlebuild.docs.dsl.source.GenerateApiMapping;
 import gradlebuild.docs.dsl.source.GenerateDefaultImports;
 import org.asciidoctor.gradle.jvm.AsciidoctorTask;
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskInputs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.process.JavaForkOptions;
 import org.ysb33r.grolifant.api.core.jvm.ExecutionMode;
 
 import java.util.ArrayList;
@@ -240,7 +242,7 @@ public class GradleUserManualPlugin implements Plugin<Project> {
             // TODO: This breaks the provider
             task.setOutputDir(extension.getUserManual().getStagingRoot().dir("render-single-pdf").get().getAsFile());
             // The PDF rendering needs at least 2GB of heap
-            task.jvm(options -> options.setMaxHeapSize("3g"));
+            task.jvm(options -> setMaxHeapSize(options, "3g"));
         });
 
         TaskProvider<AsciidoctorTask> userguideMultiPage = tasks.register("userguideMultiPage", AsciidoctorTask.class, task -> {
@@ -302,6 +304,13 @@ public class GradleUserManualPlugin implements Plugin<Project> {
             userManual.getStagedDocumentation().convention(userguideFlattenSources.flatMap(task -> (DirectoryProperty) task.getExtensions().getExtraProperties().get("destinationDirectory")));
             userManual.getRenderedDocumentation().from(userguide);
         });
+    }
+
+    /**
+     * TODO: Remove this workaround after Gradle 9
+     */
+    private static void setMaxHeapSize(JavaForkOptions options, String value) {
+        Gradle9PropertyUpgradeSupport.setProperty(options, "setMaxHeapSize", value);
     }
 
     private void configureForUserGuideSinglePage(AsciidoctorTask task, GradleDocumentationExtension extension, Project project) {
