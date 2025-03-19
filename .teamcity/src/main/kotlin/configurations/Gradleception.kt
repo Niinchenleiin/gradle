@@ -148,7 +148,7 @@ class Gradleception(
                     tasks = "clean :distributions-full:install"
                     gradleHome = "%teamcity.build.checkoutDir%/dogfood-first"
                     gradleParams =
-                        "-Pgradle_installPath=dogfood-second -PignoreIncomingBuildReceipt=true -PbuildTimestamp=$dogfoodTimestamp2 $defaultParameters"
+                        "-Pgradle_installPath=dogfood-second -PignoreIncomingBuildReceipt=true -PbuildTimestamp=$dogfoodTimestamp2 $defaultParameters --no-configuration-cache"
                 }
 
                 localGradle {
