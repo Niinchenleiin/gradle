@@ -45,7 +45,7 @@ class PublishNightlySnapshot(
                     }
 
                 triggerBuild = always()
-                withPendingChangesOnly = branch.isMainBranch
+                withPendingChangesOnly = true
                 enabled = true
                 // https://www.jetbrains.com/help/teamcity/2022.04/configuring-schedule-triggers.html#general-syntax-1
                 // We want it to be triggered only when there're pending changes in the specific vcs root, i.e. GradleMaster/GradleRelease
