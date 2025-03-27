@@ -25,11 +25,11 @@ const val NIGHTLY_SNAPSHOT_BUILD_ID = "Promotion_Nightly"
 class PublishNightlySnapshot(
     branch: VersionedSettingsBranch,
 ) : PublishGradleDistributionFullBuild(
-        promotedBranch = branch.branchName,
-        prepTask = branch.prepNightlyTaskName(),
-        promoteTask = branch.promoteNightlyTaskName(),
-        triggerName = "ReadyforNightly",
-    ) {
+    promotedBranch = branch.branchName,
+    prepTask = branch.prepNightlyTaskName(),
+    promoteTask = branch.promoteNightlyTaskName(),
+    triggerName = "ReadyforNightly",
+) {
     init {
         id(NIGHTLY_SNAPSHOT_BUILD_ID)
         name = "Nightly Snapshot"
@@ -37,27 +37,20 @@ class PublishNightlySnapshot(
             "Promotes the latest successful changes on '${branch.branchName}' from Ready for Nightly as a new nightly snapshot"
 
         triggers {
-            branch.nightlyPromotionTriggerHour?.let { triggerHour ->
-                schedule {
-                    if (branch.isMainBranch) {
-                        schedulingPolicy =
-                            daily {
-                                this.hour = triggerHour
-                            }
-                    } else {
-                        schedulingPolicy =
-                            weekly {
-                                this.dayOfWeek = ScheduleTrigger.DAY.Saturday
-                                this.hour = triggerHour
-                            }
+            schedule {
+                schedulingPolicy =
+                    daily {
+                        this.hour = 2
+                        this.minute = 40
                     }
-                    triggerBuild = always()
-                    withPendingChangesOnly = branch.isMainBranch
-                    enabled = branch.enableVcsTriggers
-                    // https://www.jetbrains.com/help/teamcity/2022.04/configuring-schedule-triggers.html#general-syntax-1
-                    // We want it to be triggered only when there're pending changes in the specific vcs root, i.e. GradleMaster/GradleRelease
-                    triggerRules = "+:root=${VersionedSettingsBranch.fromDslContext().vcsRootId()}:."
-                }
+
+                triggerBuild = always()
+                withPendingChangesOnly = branch.isMainBranch
+                enabled = true
+                // https://www.jetbrains.com/help/teamcity/2022.04/configuring-schedule-triggers.html#general-syntax-1
+                // We want it to be triggered only when there're pending changes in the specific vcs root, i.e. GradleMaster/GradleRelease
+                triggerRules = "+:root=${VersionedSettingsBranch.fromDslContext().vcsRootId()}:."
+                branchFilter = "+:experimental"
             }
         }
     }
