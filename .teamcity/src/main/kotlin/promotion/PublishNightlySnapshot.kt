@@ -40,8 +40,8 @@ class PublishNightlySnapshot(
             schedule {
                 schedulingPolicy =
                     daily {
-                        this.hour = 2
-                        this.minute = 45
+                        this.hour = 5
+                        this.minute = 18
                     }
 
                 triggerBuild = always()
@@ -50,7 +50,7 @@ class PublishNightlySnapshot(
                 // https://www.jetbrains.com/help/teamcity/2022.04/configuring-schedule-triggers.html#general-syntax-1
                 // We want it to be triggered only when there're pending changes in the specific vcs root, i.e. GradleMaster/GradleRelease
                 triggerRules = "+:root=${VersionedSettingsBranch.fromDslContext().vcsRootId()}:."
-                branchFilter = "+:experimental"
+                branchFilter = "+:<default>"
             }
         }
     }
