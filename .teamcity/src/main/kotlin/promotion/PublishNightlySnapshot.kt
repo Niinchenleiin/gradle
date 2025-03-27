@@ -41,7 +41,7 @@ class PublishNightlySnapshot(
                 schedulingPolicy =
                     daily {
                         this.hour = 2
-                        this.minute = 40
+                        this.minute = 45
                     }
 
                 triggerBuild = always()
