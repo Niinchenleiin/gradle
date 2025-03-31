@@ -17,6 +17,7 @@ package org.gradle.api.internal.artifacts.configurations
 
 import org.gradle.api.Action
 import org.gradle.api.GradleException
+import org.gradle.api.InvalidUserCodeException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Named
 import org.gradle.api.Project
@@ -29,7 +30,6 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.DependencyResolutionListener
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.artifacts.ResolvableDependencies
 import org.gradle.api.artifacts.ResolveException
 import org.gradle.api.artifacts.ResolvedConfiguration
@@ -114,7 +114,6 @@ class DefaultConfigurationSpec extends Specification {
         _ * resolver.getAllRepositories() >> []
         _ * domainObjectCollectionCallbackActionDecorator.decorate(_) >> { args -> args[0] }
         _ * userCodeApplicationContext.reapplyCurrentLater(_) >> { args -> args[0] }
-        _ * rootComponentMetadataBuilder.getValidator() >> Mock(MutationValidator)
         _ * rootComponentMetadataBuilder.newBuilder(_, _) >> rootComponentMetadataBuilder
     }
 
@@ -1323,6 +1322,7 @@ class DefaultConfigurationSpec extends Specification {
     def propertyChangeWithNonUnresolvedStateShouldThrowEx() {
         def configuration = conf()
         resolver.resolveGraph(configuration) >> graphResolved()
+        configuration.markAsObserved("observed")
 
         given:
         configuration.resolve()
@@ -1330,42 +1330,42 @@ class DefaultConfigurationSpec extends Specification {
         when:
         configuration.setTransitive(true)
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.setVisible(false)
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.exclude([:])
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.extendsFrom(conf("other"))
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.dependencies.add(Mock(Dependency))
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.dependencies.remove(Mock(Dependency))
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.artifacts.add(artifact())
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
 
         when:
         configuration.artifacts.remove(artifact())
         then:
-        thrown(InvalidUserDataException)
+        thrown(InvalidUserCodeException)
     }
 
     def "can define typed attributes"() {

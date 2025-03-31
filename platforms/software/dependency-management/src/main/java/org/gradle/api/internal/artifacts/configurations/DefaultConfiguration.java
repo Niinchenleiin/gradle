@@ -1282,8 +1282,6 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
         if (type == MutationType.USAGE) {
             assertUsageIsMutable();
         }
-
-        rootComponentMetadataBuilder.getValidator().validateMutation(type);
     }
 
     @Override
