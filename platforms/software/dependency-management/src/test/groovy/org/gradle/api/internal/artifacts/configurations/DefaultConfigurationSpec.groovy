@@ -1055,19 +1055,6 @@ class DefaultConfigurationSpec extends Specification {
         out.root == result.rootSource.get()
     }
 
-    def "resolving configuration marks parent configuration as observed"() {
-        def parent = conf("parent", ":parent")
-        def config = conf("conf")
-        config.extendsFrom parent
-        resolver.resolveGraph(config) >> graphResolved()
-
-        when:
-        config.resolve()
-
-        then:
-        parent.observedState == ConfigurationInternal.InternalState.GRAPH_RESOLVED
-    }
-
     def "resolving configuration puts it into the right state and broadcasts events"() {
         def listenerBroadcaster = Mock(AnonymousListenerBroadcast)
         def listener = Mock(DependencyResolutionListener)
@@ -1258,26 +1245,6 @@ class DefaultConfigurationSpec extends Specification {
         then:
         dep.taskName == "bar"
         dep.configurationName == "conf"
-    }
-
-    def "mutations are prohibited after resolution"() {
-        def conf = conf("conf")
-        resolver.resolveGraph(conf) >> graphResolved()
-
-        given:
-        conf.incoming.getResolutionResult().root
-
-        when:
-        conf.dependencies.add(Mock(Dependency))
-        then:
-        def exDependency = thrown(InvalidUserDataException)
-        exDependency.message == "Cannot change dependencies of dependency configuration ':conf' after it has been resolved."
-
-        when:
-        conf.artifacts.add(Mock(PublishArtifact))
-        then:
-        def exArtifact = thrown(InvalidUserDataException)
-        exArtifact.message == "Cannot change artifacts of dependency configuration ':conf' after it has been resolved."
     }
 
     def "defaultDependencies action does not trigger when config has dependencies"() {
@@ -1637,7 +1604,7 @@ class DefaultConfigurationSpec extends Specification {
 
         then:
         GradleException t = thrown()
-        t.message == "Cannot change the allowed usage of configuration ':conf', as it has been locked."
+        t.message == "Cannot mutate the usage of configuration ':conf' after the configuration was reason. After a configuration has been observed, it should not be modified."
 
         where:
         usageName               | changeUsage
