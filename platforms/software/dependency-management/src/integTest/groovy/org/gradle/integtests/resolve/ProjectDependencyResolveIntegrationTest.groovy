@@ -591,9 +591,8 @@ class ProjectDependencyResolveIntegrationTest extends AbstractIntegrationSpec im
         fails(":a:assertCanResolveRecursiveCopy")
 
         then:
-        failure.assertHasDescription("Execution failed for task ':a:assertCanResolveRecursiveCopy'.")
-        failure.assertHasCause("""No matching variant of project :a was found. The consumer was configured to find attribute 'org.gradle.category' with value 'foo' but:
-  - No variants exist.""")
+        failure.assertHasCause("Could not resolve all files for configuration ':a:resCopy'.")
+        failure.assertHasErrorOutput("No variants exist.")
     }
 
     // this test is largely covered by other tests, but does ensure that there is nothing special about
