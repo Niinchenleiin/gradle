@@ -22,6 +22,7 @@ import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.nativeintegration.filesystem.FileSystem;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -32,6 +33,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ReproducibleDirectoryWalker implements DirectoryWalker {
     private final FileSystem fileSystem;
@@ -44,23 +47,19 @@ public class ReproducibleDirectoryWalker implements DirectoryWalker {
     public void walkDir(Path rootDir, RelativePath rootPath, FileVisitor visitor, Spec<? super FileTreeElement> spec, AtomicBoolean stopFlag, boolean postfix) {
         try {
             PathVisitor pathVisitor = new PathVisitor(spec, postfix, visitor, stopFlag, rootPath, fileSystem);
-            visit(rootDir, pathVisitor);
+            PathWithAttributes rootDirWithAttributes = toPathWithAttributes(rootDir);
+            visit(rootDirWithAttributes, pathVisitor);
         } catch (IOException e) {
             throw new GradleException(String.format("Could not list contents of directory '%s'.", rootDir), e);
         }
     }
 
-    private static FileVisitResult visit(Path path, PathVisitor pathVisitor) throws IOException {
-        BasicFileAttributes attrs;
-        try {
-            attrs = Files.readAttributes(path, BasicFileAttributes.class);
-        } catch (IOException e) {
-            try {
-                attrs = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-            } catch (IOException next) {
-                return pathVisitor.visitFileFailed(path, next);
-            }
+    private static FileVisitResult visit(PathWithAttributes pathWithAttributes, PathVisitor pathVisitor) throws IOException {
+        if (pathWithAttributes.exception != null) {
+            return pathVisitor.visitFileFailed(pathWithAttributes.path, pathWithAttributes.exception);
         }
+        Path path = pathWithAttributes.path;
+        BasicFileAttributes attrs = checkNotNull(pathWithAttributes.attrs);
 
         if (attrs.isDirectory()) {
             FileVisitResult fvr = pathVisitor.preVisitDirectory(path, attrs);
@@ -69,8 +68,11 @@ public class ReproducibleDirectoryWalker implements DirectoryWalker {
             }
             IOException exception = null;
             try (Stream<Path> fileStream = Files.list(path)) {
-                Iterable<Path> files = () -> fileStream.sorted(FILES_FIRST).iterator();
-                for (Path child : files) {
+                Iterable<PathWithAttributes> files = () -> fileStream
+                    .map(ReproducibleDirectoryWalker::toPathWithAttributes)
+                    .sorted(FILES_FIRST)
+                    .iterator();
+                for (PathWithAttributes child : files) {
                     FileVisitResult childResult = visit(child, pathVisitor);
                     if (childResult == FileVisitResult.TERMINATE) {
                         return childResult;
@@ -85,5 +87,38 @@ public class ReproducibleDirectoryWalker implements DirectoryWalker {
         }
     }
 
-    private final static Comparator<Path> FILES_FIRST = Comparator.<Path, Boolean>comparing(x -> x.toFile().isDirectory()).thenComparing(Path::toString);
+    private static PathWithAttributes toPathWithAttributes(Path path) {
+        BasicFileAttributes attrs;
+        try {
+            attrs = Files.readAttributes(path, BasicFileAttributes.class);
+        } catch (IOException e) {
+            try {
+                attrs = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+            } catch (IOException next) {
+                return new PathWithAttributes(path, null, e);
+            }
+        }
+        return new PathWithAttributes(path, attrs, null);
+    }
+
+    private static class PathWithAttributes {
+        private final Path path;
+        @Nullable
+        private final BasicFileAttributes attrs;
+        @Nullable
+        private final IOException exception;
+
+        public PathWithAttributes(Path path, @Nullable BasicFileAttributes attrs, @Nullable IOException exception) {
+            this.path = path;
+            this.attrs = attrs;
+            this.exception = exception;
+        }
+
+        public boolean isDirectory() {
+            return attrs != null && attrs.isDirectory();
+        }
+    }
+
+    private final static Comparator<PathWithAttributes> FILES_FIRST = Comparator.comparing(PathWithAttributes::isDirectory)
+        .thenComparing(p -> p.path.toString());
 }
