@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package org.gradle.api.plugins.java
+package org.gradle.api.plugins.antlr
 
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.Plugin
+import org.gradle.api.initialization.Settings
+import org.gradle.api.internal.plugins.software.RegistersSoftwareTypes
 
-interface JavaClasses {
-    val byteCodeDir: DirectoryProperty
-    val processedResourcesDir: DirectoryProperty
+@RegistersSoftwareTypes(AntlrSoftwareFeaturePlugin::class)
+class AntlrEcosystemPlugin : Plugin<Settings> {
+    override fun apply(target: Settings) {
+
+    }
 }

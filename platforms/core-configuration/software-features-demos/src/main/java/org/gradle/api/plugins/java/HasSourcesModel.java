@@ -21,11 +21,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.SourceDirectorySet;
 
 public interface HasSourcesModel {
-    JavaSourcesContainerModel getSources();
-
-    interface JavaSourcesContainerModel extends NamedDomainObjectContainer<JavaSourcesModel> {
-
-    }
+    NamedDomainObjectContainer<JavaSourcesModel> getSources();
 
     interface JavaSourcesModel extends Named {
         SourceDirectorySet getJavaSources();

@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-package org.gradle.api.plugins.java;
+package org.gradle.api.plugins.java
 
-public interface JavaIdealSoftwareType extends HasToolChain, HasSources, HasJavaTarget, HasLibraryDependencies {
+import org.gradle.api.Plugin
+import org.gradle.api.initialization.Settings
+import org.gradle.api.internal.plugins.software.RegistersSoftwareTypes
+
+@RegistersSoftwareTypes(JavaSoftwareTypePlugin::class)
+class JavaEcosystemPlugin : Plugin<Settings> {
+    override fun apply(target: Settings) {
+    }
 }

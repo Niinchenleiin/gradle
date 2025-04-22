@@ -17,9 +17,10 @@
 package org.gradle.api.plugins.java;
 
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.tasks.Nested;
 
 public interface JavaLibraryOutputs extends HasJarFile, HasJavaClasses {
-
+    @Nested
     TestReports getTestReports();
 
     interface TestReports {

@@ -18,8 +18,12 @@ package org.gradle.api.plugins.instrumentation;
 
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.declarative.dsl.model.annotations.Restricted;
 
+@Restricted
 public interface InstrumentClassesDefinition {
+    @Restricted
     RegularFileProperty getConfigFile();
+    @Restricted
     DirectoryProperty getDestinationDirectory();
 }

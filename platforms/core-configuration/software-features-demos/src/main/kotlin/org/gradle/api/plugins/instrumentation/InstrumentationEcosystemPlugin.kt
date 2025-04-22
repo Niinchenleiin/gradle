@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package org.gradle.api.plugins.antlr;
+package org.gradle.api.plugins.instrumentation
 
-import org.gradle.api.Named;
-import org.gradle.api.provider.Property;
-import org.gradle.declarative.dsl.model.annotations.Restricted;
+import org.gradle.api.Plugin
+import org.gradle.api.initialization.Settings
+import org.gradle.api.internal.plugins.software.RegistersSoftwareTypes
 
-@Restricted
-public interface AntlrConfiguration extends Named, HasAntlrGrammars {
-    @Restricted
-    Property<Boolean> getTrace();
-    @Restricted
-    Property<Boolean> getTraceLexer();
-    @Restricted
-    Property<Boolean> getTraceParser();
-    @Restricted
-    Property<Boolean> getTraceTreeWalker();
+@RegistersSoftwareTypes(InstrumentClassesSoftwareFeaturePlugin::class)
+class InstrumentationEcosystemPlugin : Plugin<Settings> {
+    override fun apply(target: Settings) {
+
+    }
 }

@@ -37,5 +37,7 @@ dependencies {
     implementation(projects.languageJava)
     implementation(projects.antlr)
     implementation(projects.codeQuality)
+
+    integTestDistributionRuntimeOnly(projects.distributionsFull)
 }
 

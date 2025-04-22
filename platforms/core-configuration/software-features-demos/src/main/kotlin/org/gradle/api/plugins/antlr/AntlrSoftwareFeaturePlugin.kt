@@ -16,6 +16,7 @@
 
 package org.gradle.api.plugins.antlr
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsSoftwareFeature
@@ -25,13 +26,14 @@ import org.gradle.api.internal.plugins.bind
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.antlr.internal.DefaultAntlrSourceDirectorySet
 import org.gradle.api.plugins.java.HasSources.JavaSources
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
-@BindsSoftwareFeature(AntlrIdealSoftwareFeaturePlugin.Binding::class)
-class AntlrIdealSoftwareFeaturePlugin : Plugin<Project> {
+@BindsSoftwareFeature(AntlrSoftwareFeaturePlugin.Binding::class)
+class AntlrSoftwareFeaturePlugin : Plugin<Project> {
     /**
      * javaLibrary {
      *     sources {
-     *         main {
+     *         javaSources("main") {
      *             antlr {
      *             }
      *         }
@@ -39,18 +41,18 @@ class AntlrIdealSoftwareFeaturePlugin : Plugin<Project> {
      * }
      */
     class Binding : SoftwareFeatureBindingRegistration {
-        override fun configure(builder: SoftwareFeatureBindingBuilder) {
+        override fun register(builder: SoftwareFeatureBindingBuilder) {
             builder
                 .bind<AntlrGrammarsDefinition, JavaSources, AntlrGeneratedSources>("antlr") { definition, parent, model ->
                     definition.grammarSources = createAntlrSourceDirectorySet(definition.name, project.objects)
                     val outputDirectory = projectLayout.buildDirectory.dir("/generated-src/antlr/" + definition.grammarSources.getName())
 
                     // Add the generated antlr sources to the java sources
-                    parent.javaSources.srcDir(outputDirectory)
+                    parent.java.srcDir(outputDirectory)
 
-                    project.tasks.register("generate" + definition.name.capitalize() + "Sources", AntlrTask::class.java) { antlrTask ->
-                        antlrTask.description = "Processes the " + definition.grammarSources.name + " Antlr grammars."
-                        // 4) set up convention mapping for default sources (allows user to not have to specify)
+                    project.tasks.register("generate" + StringUtils.capitalize(definition.name) + "AntlrSources", AntlrTask::class.java) { antlrTask ->
+                        antlrTask.group = LifecycleBasePlugin.BUILD_GROUP
+                        antlrTask.description = "Generates sources from the " + definition.grammarSources.name + " Antlr grammars."
                         antlrTask.source = definition.grammarSources
                         antlrTask.outputDirectory = outputDirectory.get().asFile
                     }

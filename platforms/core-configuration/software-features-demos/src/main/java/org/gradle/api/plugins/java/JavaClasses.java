@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package org.gradle.api.plugins.antlr;
+package org.gradle.api.plugins.java;
 
 import org.gradle.api.Named;
-import org.gradle.api.provider.Property;
-import org.gradle.declarative.dsl.model.annotations.Restricted;
+import org.gradle.api.file.DirectoryProperty;
 
-@Restricted
-public interface AntlrConfiguration extends Named, HasAntlrGrammars {
-    @Restricted
-    Property<Boolean> getTrace();
-    @Restricted
-    Property<Boolean> getTraceLexer();
-    @Restricted
-    Property<Boolean> getTraceParser();
-    @Restricted
-    Property<Boolean> getTraceTreeWalker();
+public interface JavaClasses extends Named {
+    DirectoryProperty getByteCodeDir();
+    DirectoryProperty getProcessedResourcesDir();
 }

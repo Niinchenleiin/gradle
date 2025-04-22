@@ -16,6 +16,7 @@
 
 package org.gradle.api.plugins.instrumentation
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -26,6 +27,7 @@ import org.gradle.api.internal.plugins.SoftwareFeatureBindingRegistration
 import org.gradle.api.internal.plugins.bind
 import org.gradle.api.plugins.java.HasSources.JavaSources
 import org.gradle.api.plugins.java.JavaClasses
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
 @BindsSoftwareFeature(InstrumentClassesSoftwareFeaturePlugin.Binding::class)
 class InstrumentClassesSoftwareFeaturePlugin : Plugin<Project> {
@@ -33,7 +35,7 @@ class InstrumentClassesSoftwareFeaturePlugin : Plugin<Project> {
     /**
      * javaLibrary {
      *     sources {
-     *         main {
+     *         javaSources("main") {
      *             instrument {
      *             }
      *         }
@@ -41,15 +43,17 @@ class InstrumentClassesSoftwareFeaturePlugin : Plugin<Project> {
      * }
      */
     class Binding : SoftwareFeatureBindingRegistration {
-        override fun configure(builder: SoftwareFeatureBindingBuilder) {
+        override fun register(builder: SoftwareFeatureBindingBuilder) {
             builder
                 .bind<InstrumentClassesDefinition, JavaSources, InstrumentClassesModel>("instrument") { definition, parent, model ->
                     // This is possible because JavaLibrarySoftwareTypePlugin has registered this output on JavaSources
                     val javaClasses = getModel(parent, JavaClasses::class.java)
 
-                    val instrumentClassesTask = project.tasks.register("instrumentJar", InstrumentClasses::class.java) {
-                        it.bytecodeDir.set(javaClasses.byteCodeDir)
-                        it.instrumentedClassesDir.set(definition.destinationDirectory)
+                    val instrumentClassesTask = project.tasks.register("instrument" + StringUtils.capitalize(parent.name) + "Classes", InstrumentClasses::class.java) { task ->
+                        task.group = LifecycleBasePlugin.BUILD_GROUP
+                        task.description = "Instruments the ${parent.name} classes."
+                        task.bytecodeDir.set(javaClasses.byteCodeDir)
+                        task.instrumentedClassesDir.set(definition.destinationDirectory)
                     }
 
                     model.instrumentedClassesDirectory.set(instrumentClassesTask.map { it.instrumentedClassesDir.get() })

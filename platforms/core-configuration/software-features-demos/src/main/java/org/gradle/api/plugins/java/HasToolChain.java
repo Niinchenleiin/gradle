@@ -16,13 +16,7 @@
 
 package org.gradle.api.plugins.java;
 
-import org.gradle.jvm.toolchain.JavaToolchainSpec;
 
 public interface HasToolChain {
-    /**
-     * The toolchain used to compile the Java source code.
-     *
-     * @return the toolchain
-     */
-    JavaToolchainSpec getToolChain();
+
 }

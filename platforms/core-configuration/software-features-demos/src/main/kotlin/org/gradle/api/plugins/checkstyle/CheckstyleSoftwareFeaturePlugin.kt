@@ -16,6 +16,7 @@
 
 package org.gradle.api.plugins.checkstyle
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsSoftwareFeature
@@ -24,15 +25,28 @@ import org.gradle.api.internal.plugins.SoftwareFeatureBindingRegistration
 import org.gradle.api.internal.plugins.bind
 import org.gradle.api.plugins.java.HasSources.JavaSources
 import org.gradle.api.plugins.quality.Checkstyle
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
 @BindsSoftwareFeature(CheckstyleSoftwareFeaturePlugin.Binding::class)
 class CheckstyleSoftwareFeaturePlugin : Plugin<Project> {
+    /**
+     * javaLibrary {
+     *     sources {
+     *         javaSources("main") {
+     *             checkstyle {
+     *             }
+     *         }
+     *     }
+     * }
+     */
     class Binding : SoftwareFeatureBindingRegistration {
-        override fun configure(builder: SoftwareFeatureBindingBuilder) {
+        override fun register(builder: SoftwareFeatureBindingBuilder) {
             builder
                 .bind<CheckstyleSourceSetDefinition, JavaSources, CheckstyleModel>("checkstyle") { definition, parent, model ->
-                    val checkstyleTask = project.tasks.register("checkstyle", Checkstyle::class.java) { task ->
-                        task.source(parent.javaSources)
+                    val checkstyleTask = project.tasks.register("check" + StringUtils.capitalize(parent.name) + "Checkstyle", Checkstyle::class.java) { task ->
+                        task.group = LifecycleBasePlugin.VERIFICATION_GROUP
+                        task.description = "Runs Checkstyle on the ${parent.name} source set."
+                        task.source(parent.java)
                         task.configFile = definition.configFile.asFile.get()
                     }
 

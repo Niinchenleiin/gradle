@@ -16,19 +16,22 @@
 
 package org.gradle.api.plugins.java
 
+import org.apache.commons.lang3.StringUtils.capitalize
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.BindsSoftwareType
 import org.gradle.api.internal.plugins.SoftwareTypeBindingBuilder
 import org.gradle.api.internal.plugins.SoftwareTypeBindingRegistration
 import org.gradle.api.internal.plugins.bind
-import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.internal.plugins.withDslImplementationType
+import org.gradle.api.plugins.internal.java.DefaultJavaSoftwareType
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 
-@BindsSoftwareType(JavaIdealSoftwareTypePlugin.Binding::class)
-class JavaIdealSoftwareTypePlugin : Plugin<Project> {
+@BindsSoftwareType(JavaSoftwareTypePlugin.Binding::class)
+class JavaSoftwareTypePlugin : Plugin<Project> {
     /**
      * javaLibrary {
      *     version = "11"
@@ -39,22 +42,27 @@ class JavaIdealSoftwareTypePlugin : Plugin<Project> {
      * }
      */
     class Binding : SoftwareTypeBindingRegistration {
-        override fun configure(builder: SoftwareTypeBindingBuilder) {
+        override fun register(builder: SoftwareTypeBindingBuilder) {
             builder
-                .bind<JavaIdealSoftwareType, JavaLibraryOutputs>("javaLibrary") { definition, model ->
+                .withDslImplementationType<DefaultJavaSoftwareType>()
+                .bind<JavaSoftwareType, JavaLibraryOutputs>("javaLibrary") { definition, model ->
                     definition.sources.register("main")
                     definition.sources.register("test")
 
                     definition.sources.all { javaSources ->
                         // Should be TaskRegistrar with some sort of an implicit namer for the context
                         val compileTask = project.tasks.register(
-                            "compile" + javaSources.name.capitalize() + "Java",
+                            "compile" + capitalize(javaSources.name) + "Java",
                             JavaCompile::class.java
                         ) { task ->
-                            task.source(javaSources.javaSources.asFileTree)
+                            task.group = LifecycleBasePlugin.BUILD_GROUP
+                            task.description = "Compiles the " + javaSources.name + " Java source."
+                            task.source(javaSources.java.asFileTree)
                         }
 
-                        val processResourcesTask = project.tasks.register("processResources", Copy::class.java) { task ->
+                        val processResourcesTask = project.tasks.register("process" + capitalize(javaSources.name) + "Resources", Copy::class.java) { task ->
+                            task.group = LifecycleBasePlugin.BUILD_GROUP
+                            task.description = "Processes the " + javaSources.name + " resources."
                             task.from(javaSources.resources.asFileTree)
                         }
 
@@ -64,7 +72,7 @@ class JavaIdealSoftwareTypePlugin : Plugin<Project> {
                         }
 
                         // Creates an extension on javaSources containing its classes object
-                        registerModel(javaSources, classes)
+                        registerModel(javaSources, classes.get())
                     }
 
                     val mainClasses = model.classes.named("main")
