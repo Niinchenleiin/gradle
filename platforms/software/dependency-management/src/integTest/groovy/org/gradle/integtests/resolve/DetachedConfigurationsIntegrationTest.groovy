@@ -18,7 +18,6 @@ package org.gradle.integtests.resolve
 
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.extensions.FluidDependenciesResolveTest
-import org.gradle.util.internal.ToBeImplemented
 import spock.lang.Issue
 
 import static org.gradle.api.internal.DocumentationRegistry.BASE_URL
@@ -132,8 +131,6 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
         run "checkDependencies"
     }
 
-    @ToBeImplemented("Reverted to the old behavior to fix performance regression")
-    @Issue("https://github.com/gradle/gradle/issues/30239")
     def "detached configuration can resolve project dependency targeting current project"() {
         buildFile << """
             task zip(type: Zip) {
@@ -161,12 +158,9 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
                 }
             }
         """
-        // Remove when test fixed:
-        disableProblemsApiCheck()
-        executer.noDeprecationChecks()
 
         expect:
-        fails("resolve")
+        succeeds("resolve")
     }
 
     def "configurations container reserves name #name for detached configurations"() {
@@ -196,8 +190,6 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
         name << ["detachedConfiguration", "detachedConfiguration1", "detachedConfiguration22902"]
     }
 
-    @ToBeImplemented("Reverted to the old behavior to fix performance regression")
-    @Issue("https://github.com/gradle/gradle/issues/30239")
     def "detached configuration has a different component ID and module version ID than the root component"() {
         mavenRepo.module("org", "foo").publish()
 
@@ -236,12 +228,9 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
                 }
             }
         """
-        // Remove when test fixed:
-        disableProblemsApiCheck()
-        executer.noDeprecationChecks()
 
         expect:
-        fails("resolve")
+        succeeds("resolve")
 
         where:
         // We test with and without dependencies, to test with and without the
@@ -249,8 +238,6 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
         withDependencies << [true, false]
     }
 
-    @ToBeImplemented("Reverted to the old behavior to fix performance regression")
-    @Issue("https://github.com/gradle/gradle/issues/30239")
     def "can copy a detached configuration"() {
         mavenRepo.module("org", "foo").publish()
 
@@ -280,12 +267,9 @@ class DetachedConfigurationsIntegrationTest extends AbstractIntegrationSpec {
                 }
             }
         """
-        // Remove when test fixed:
-        disableProblemsApiCheck()
-        executer.noDeprecationChecks()
 
         expect:
-        fails("resolve")
+        succeeds("resolve")
     }
 
     @Issue("https://github.com/gradle/gradle/issues/30239")

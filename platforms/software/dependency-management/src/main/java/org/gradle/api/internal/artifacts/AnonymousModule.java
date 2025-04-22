@@ -16,7 +16,6 @@
 package org.gradle.api.internal.artifacts;
 
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.internal.component.external.model.DefaultModuleComponentIdentifier;
 
@@ -51,10 +50,5 @@ public class AnonymousModule implements Module {
     @Override
     public String getStatus() {
         return Project.DEFAULT_STATUS;
-    }
-
-    @Override
-    public ComponentIdentifier getComponentId() {
-        return ID;
     }
 }

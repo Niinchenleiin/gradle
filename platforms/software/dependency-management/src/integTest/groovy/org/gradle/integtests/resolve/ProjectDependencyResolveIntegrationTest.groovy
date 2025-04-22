@@ -522,10 +522,8 @@ class ProjectDependencyResolveIntegrationTest extends AbstractIntegrationSpec im
         }
     }
 
-    // TODO #9591: This does not reflect desired behavior. The recursive copy is a detached configuration, which
-    // effectively replaces the root component, preventing the consumable configuration from being selected.
     @Issue('GRADLE-3280')
-    def "cannot resolve recursive copy of configuration with cyclic project dependencies"() {
+    def "can resolve recursive copy of configuration with cyclic project dependencies"() {
         given:
         settingsFile << "include 'a', 'b', 'c'"
         def common = """
@@ -587,12 +585,8 @@ class ProjectDependencyResolveIntegrationTest extends AbstractIntegrationSpec im
         expect:
         succeeds(":a:assertCanResolve")
 
-        when:
-        executer.expectDocumentedDeprecationWarning("The resCopy configuration has been deprecated for consumption. This will fail with an error in Gradle 9.0. For more information, please refer to https://docs.gradle.org/current/userguide/declaring_dependencies.html#sec:deprecated-configurations in the Gradle documentation.")
-        fails(":a:assertCanResolveRecursiveCopy")
-
-        then:
-        failure.assertHasCause("Cannot select root node 'resCopy' as a variant. Configurations should not act as both a resolution root and a variant simultaneously. Be sure to mark configurations meant for resolution as canBeConsumed=false or use the 'resolvable(String)' configuration factory method to create them.")
+        and:
+        succeeds(":a:assertCanResolveRecursiveCopy")
     }
 
     // this test is largely covered by other tests, but does ensure that there is nothing special about

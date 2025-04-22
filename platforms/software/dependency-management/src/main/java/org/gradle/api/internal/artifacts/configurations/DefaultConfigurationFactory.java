@@ -26,7 +26,6 @@ import org.gradle.api.internal.artifacts.ConfigurationResolver;
 import org.gradle.api.internal.artifacts.ResolveExceptionMapper;
 import org.gradle.api.internal.artifacts.dsl.CapabilityNotationParserFactory;
 import org.gradle.api.internal.artifacts.dsl.PublishArtifactNotationParserFactory;
-import org.gradle.api.internal.artifacts.ivyservice.moduleconverter.RootComponentMetadataBuilder;
 import org.gradle.api.internal.attributes.AttributeDesugaring;
 import org.gradle.api.internal.attributes.AttributesFactory;
 import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
@@ -122,18 +121,17 @@ public class DefaultConfigurationFactory {
      */
     DefaultLegacyConfiguration create(
         String name,
-        ConfigurationsProvider configurationsProvider,
+        boolean isDetached,
         Factory<ResolutionStrategyInternal> resolutionStrategyFactory,
-        RootComponentMetadataBuilder rootComponentMetadataBuilder,
         ConfigurationRole role
     ) {
         ListenerBroadcast<DependencyResolutionListener> dependencyResolutionListeners =
             listenerManager.createAnonymousBroadcaster(DependencyResolutionListener.class);
-        DefaultLegacyConfiguration instance = instantiator.newInstance(
+        return instantiator.newInstance(
             DefaultLegacyConfiguration.class,
             domainObjectContext,
             name,
-            configurationsProvider,
+            isDetached,
             resolver,
             dependencyResolutionListeners,
             resolutionStrategyFactory,
@@ -143,7 +141,6 @@ public class DefaultConfigurationFactory {
             artifactNotationParser,
             capabilityNotationParser,
             attributesFactory,
-            rootComponentMetadataBuilder,
             exceptionContextualizer,
             attributeDesugaring,
             userCodeApplicationContext,
@@ -157,8 +154,6 @@ public class DefaultConfigurationFactory {
             problemsService,
             documentationRegistry
         );
-        instance.addMutationValidator(rootComponentMetadataBuilder.getValidator());
-        return instance;
     }
 
     /**
@@ -166,17 +161,15 @@ public class DefaultConfigurationFactory {
      */
     DefaultResolvableConfiguration createResolvable(
         String name,
-        ConfigurationsProvider configurationsProvider,
-        Factory<ResolutionStrategyInternal> resolutionStrategyFactory,
-        RootComponentMetadataBuilder rootComponentMetadataBuilder
+        Factory<ResolutionStrategyInternal> resolutionStrategyFactory
     ) {
         ListenerBroadcast<DependencyResolutionListener> dependencyResolutionListeners =
             listenerManager.createAnonymousBroadcaster(DependencyResolutionListener.class);
-        DefaultResolvableConfiguration instance = instantiator.newInstance(
+        return instantiator.newInstance(
             DefaultResolvableConfiguration.class,
             domainObjectContext,
             name,
-            configurationsProvider,
+            false,
             resolver,
             dependencyResolutionListeners,
             resolutionStrategyFactory,
@@ -186,7 +179,6 @@ public class DefaultConfigurationFactory {
             artifactNotationParser,
             capabilityNotationParser,
             attributesFactory,
-            rootComponentMetadataBuilder,
             exceptionContextualizer,
             attributeDesugaring,
             userCodeApplicationContext,
@@ -199,8 +191,6 @@ public class DefaultConfigurationFactory {
             problemsService,
             documentationRegistry
         );
-        instance.addMutationValidator(rootComponentMetadataBuilder.getValidator());
-        return instance;
     }
 
     /**
@@ -208,17 +198,15 @@ public class DefaultConfigurationFactory {
      */
     DefaultConsumableConfiguration createConsumable(
         String name,
-        ConfigurationsProvider configurationsProvider,
-        Factory<ResolutionStrategyInternal> resolutionStrategyFactory,
-        RootComponentMetadataBuilder rootComponentMetadataBuilder
+        Factory<ResolutionStrategyInternal> resolutionStrategyFactory
     ) {
         ListenerBroadcast<DependencyResolutionListener> dependencyResolutionListeners =
             listenerManager.createAnonymousBroadcaster(DependencyResolutionListener.class);
-        DefaultConsumableConfiguration instance = instantiator.newInstance(
+        return instantiator.newInstance(
             DefaultConsumableConfiguration.class,
             domainObjectContext,
             name,
-            configurationsProvider,
+            false,
             resolver,
             dependencyResolutionListeners,
             resolutionStrategyFactory,
@@ -228,7 +216,6 @@ public class DefaultConfigurationFactory {
             artifactNotationParser,
             capabilityNotationParser,
             attributesFactory,
-            rootComponentMetadataBuilder,
             exceptionContextualizer,
             attributeDesugaring,
             userCodeApplicationContext,
@@ -241,8 +228,6 @@ public class DefaultConfigurationFactory {
             problemsService,
             documentationRegistry
         );
-        instance.addMutationValidator(rootComponentMetadataBuilder.getValidator());
-        return instance;
     }
 
     /**
@@ -250,17 +235,15 @@ public class DefaultConfigurationFactory {
      */
     DefaultDependencyScopeConfiguration createDependencyScope(
         String name,
-        ConfigurationsProvider configurationsProvider,
-        Factory<ResolutionStrategyInternal> resolutionStrategyFactory,
-        RootComponentMetadataBuilder rootComponentMetadataBuilder
+        Factory<ResolutionStrategyInternal> resolutionStrategyFactory
     ) {
         ListenerBroadcast<DependencyResolutionListener> dependencyResolutionListeners =
             listenerManager.createAnonymousBroadcaster(DependencyResolutionListener.class);
-        DefaultDependencyScopeConfiguration instance = instantiator.newInstance(
+        return instantiator.newInstance(
             DefaultDependencyScopeConfiguration.class,
             domainObjectContext,
             name,
-            configurationsProvider,
+            false,
             resolver,
             dependencyResolutionListeners,
             resolutionStrategyFactory,
@@ -270,7 +253,6 @@ public class DefaultConfigurationFactory {
             artifactNotationParser,
             capabilityNotationParser,
             attributesFactory,
-            rootComponentMetadataBuilder,
             exceptionContextualizer,
             attributeDesugaring,
             userCodeApplicationContext,
@@ -283,8 +265,6 @@ public class DefaultConfigurationFactory {
             problemsService,
             documentationRegistry
         );
-        instance.addMutationValidator(rootComponentMetadataBuilder.getValidator());
-        return instance;
     }
 
     public InternalProblems getProblems() {
