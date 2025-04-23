@@ -437,6 +437,12 @@ This is to help prevent misconfigurations where the tests are written for one te
 
 If filters are applied, the outcome depends on the `failOnNoMatchingTests` property.
 
+==== The `model` and `component` tasks are no longer automatically added
+
+The `model` and `component` tasks report on the structure of legacy software model objects configured for the project.
+Previously, these tasks were automatically added to the project for every build.
+These tasks are now only added to a project when a rule-based plugin is applied (such as those provided by Gradle's support for building native software).
+
 [[changes_8.14]]
 == Upgrading from 8.13 and earlier
 
