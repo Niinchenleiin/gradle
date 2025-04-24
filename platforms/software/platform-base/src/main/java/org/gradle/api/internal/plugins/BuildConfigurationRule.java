@@ -18,7 +18,6 @@ package org.gradle.api.internal.plugins;
 
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.Rule;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.tasks.TaskContainer;
@@ -47,10 +46,10 @@ public class BuildConfigurationRule implements Rule {
             Configuration configuration = configurations.findByName(configurationName);
 
             if (configuration != null) {
-                @SuppressWarnings("deprecation")
-                Task task = tasks.create(taskName);
-                task.dependsOn(configuration.getAllArtifacts());
-                task.setDescription("Builds the artifacts belonging to " + configuration + ".");
+                tasks.register(taskName, task -> {
+                    task.dependsOn(configuration.getAllArtifacts());
+                    task.setDescription("Builds the artifacts belonging to " + configuration + ".");
+                });
             }
         }
     }

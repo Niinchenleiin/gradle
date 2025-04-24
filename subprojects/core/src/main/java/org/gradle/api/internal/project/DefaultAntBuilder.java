@@ -34,6 +34,7 @@ import org.gradle.api.internal.project.ant.AntLoggingAdapter;
 import org.gradle.api.internal.project.ant.BasicAntBuilder;
 import org.gradle.api.internal.tasks.TaskDependencyInternal;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.ant.AntTarget;
 import org.gradle.internal.Transformers;
 import org.jspecify.annotations.Nullable;
@@ -147,19 +148,21 @@ public class DefaultAntBuilder extends BasicAntBuilder implements GroovyObject {
         for (String name : newAntTargets) {
             final Target target = getAntProject().getTargets().get(name);
             String taskName = taskNamer.transform(target.getName());
-            @SuppressWarnings("deprecation")
-            final AntTarget task = gradleProject.getTasks().create(taskName, AntTarget.class);
+            final TaskProvider<AntTarget> task = gradleProject.getTasks().register(taskName, AntTarget.class);
             configureTask(target, task, baseDir, taskNamer);
         }
     }
 
-    private static void configureTask(Target target, AntTarget task, File baseDir, Transformer<? extends String, ? super String> taskNamer) {
-        task.setTarget(target);
-        task.setBaseDir(baseDir);
+    private static void configureTask(Target target, TaskProvider<AntTarget> antTask, File baseDir, Transformer<? extends String, ? super String> taskNamer) {
+        antTask.configure(task -> {
+            task.setTarget(target);
+            task.setBaseDir(baseDir);
 
-        final List<String> taskDependencyNames = getTaskDependencyNames(target, taskNamer);
-        task.dependsOn(new AntTargetsTaskDependency(taskDependencyNames));
-        addDependencyOrdering(taskDependencyNames, task.getProject().getTasks());
+            final List<String> taskDependencyNames = getTaskDependencyNames(target, taskNamer);
+            task.dependsOn(new AntTargetsTaskDependency(taskDependencyNames));
+            addDependencyOrdering(taskDependencyNames, task.getProject().getTasks());
+        });
+
     }
 
     private static List<String> getTaskDependencyNames(Target target, Transformer<? extends String, ? super String> taskNamer) {

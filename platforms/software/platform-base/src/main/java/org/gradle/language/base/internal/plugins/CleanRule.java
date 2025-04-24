@@ -57,8 +57,6 @@ public class CleanRule implements Rule {
             return;
         }
 
-        @SuppressWarnings("deprecation")
-        Delete clean = tasks.create(taskName, Delete.class);
-        clean.delete(task.getOutputs().getFiles());
+        tasks.register(taskName, Delete.class, newTask -> newTask.delete(task.getOutputs().getFiles()));
     }
 }
