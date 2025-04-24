@@ -104,6 +104,7 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
         exec.setExecutable(javaExecutable(jdkPath).getAbsolutePath());
         try {
             String base64Content = java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(probe.toPath()));
+            logger.error("Env: {}", exec.getEnvironment());
             logger.error("Probe file base64: {}", base64Content);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
