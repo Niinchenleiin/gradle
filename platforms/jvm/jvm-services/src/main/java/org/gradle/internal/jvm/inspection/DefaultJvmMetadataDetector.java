@@ -137,7 +137,7 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
                 .toArray(String[]::new);
         if (split.length != ProbedSystemProperty.values().length - 1) { // -1 because of Z_ERROR
             final String errorMessage = "Unexpected command output: \n" + probeResult;
-            logger.info("Failed to parse JVM installation metadata output at '" + jdkPath + "'. " + errorMessage);
+            logger.error("Failed to parse JVM installation metadata output at '" + jdkPath + "'. " + errorMessage);
             return failure(jdkPath, errorMessage);
         }
         EnumMap<ProbedSystemProperty, String> result = new EnumMap<>(ProbedSystemProperty.class);
@@ -146,7 +146,7 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
                 result.put(type, split[type.ordinal()].trim());
             }
         }
-        logger.info("Received JVM installation metadata from '{}': {}", jdkPath.getAbsolutePath(), result);
+        logger.error("Received JVM installation metadata from '{}': {}", jdkPath.getAbsolutePath(), result);
         return asMetadata(jdkPath, result);
     }
 
