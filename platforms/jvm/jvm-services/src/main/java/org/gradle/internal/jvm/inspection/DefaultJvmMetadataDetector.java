@@ -114,7 +114,7 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
             if (exitValue == 0) {
                 return parseExecOutput(jdkPath, out.toString());
             }
-            String errorMessage = "Command returned unexpected result code: " + exitValue + "\nError output:\n" + errorOutput;
+            String errorMessage = "Command returned unexpected result code: " + exitValue + "\nError output:\n" + errorOutput + "\nOutput output:\n" + out;
             logger.error("Failed to get metadata from JVM installation at '{}'. {}", jdkPath, errorMessage);
             return failure(jdkPath, errorMessage);
         } catch (ProcessExecutionException ex) {
