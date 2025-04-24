@@ -103,6 +103,8 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
         exec.setWorkingDir(probe.getParentFile());
         exec.setExecutable(javaExecutable(jdkPath).getAbsolutePath());
         try {
+            String base64Content = java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(probe.toPath()));
+            logger.error("Probe file base64: {}", base64Content);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
             String mainClassname = Files.getNameWithoutExtension(probe.getName());
@@ -117,7 +119,7 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
             String errorMessage = "Command returned unexpected result code: " + exitValue + "\nError output:\n" + errorOutput + "\nOutput output:\n" + out;
             logger.error("Failed to get metadata from JVM installation at '{}'. {}", jdkPath, errorMessage);
             return failure(jdkPath, errorMessage);
-        } catch (ProcessExecutionException ex) {
+        } catch (Exception ex) {
             logger.error("Failed to get metadata from JVM installation at '{}'.", jdkPath, ex);
             return failure(jdkPath, ex);
         } finally {
