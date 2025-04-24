@@ -115,10 +115,10 @@ public class DefaultJvmMetadataDetector implements JvmMetadataDetector {
                 return parseExecOutput(jdkPath, out.toString());
             }
             String errorMessage = "Command returned unexpected result code: " + exitValue + "\nError output:\n" + errorOutput;
-            logger.debug("Failed to get metadata from JVM installation at '{}'. {}", jdkPath, errorMessage);
+            logger.error("Failed to get metadata from JVM installation at '{}'. {}", jdkPath, errorMessage);
             return failure(jdkPath, errorMessage);
         } catch (ProcessExecutionException ex) {
-            logger.debug("Failed to get metadata from JVM installation at '{}'.", jdkPath, ex);
+            logger.error("Failed to get metadata from JVM installation at '{}'.", jdkPath, ex);
             return failure(jdkPath, ex);
         } finally {
             GFileUtils.deleteQuietly(tmpDir);
