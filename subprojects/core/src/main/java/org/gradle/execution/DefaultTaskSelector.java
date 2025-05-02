@@ -40,16 +40,13 @@ public class DefaultTaskSelector implements TaskSelector {
 
     private final TaskNameResolver taskNameResolver;
     private final ProjectConfigurer configurer;
+    private final InternalProblems problemsService;
 
     @Inject
-    public DefaultTaskSelector(TaskNameResolver taskNameResolver, ProjectConfigurer configurer) {
+    public DefaultTaskSelector(TaskNameResolver taskNameResolver, ProjectConfigurer configurer, InternalProblems problemsService) {
         this.taskNameResolver = taskNameResolver;
         this.configurer = configurer;
-    }
-
-    @Inject
-    protected InternalProblems getProblemsService() {
-        throw new UnsupportedOperationException();
+        this.problemsService = problemsService;
     }
 
     @Override
@@ -97,7 +94,7 @@ public class DefaultTaskSelector implements TaskSelector {
 
         if (context.getOriginalPath().getPath().equals(taskName)) {
             String message = matcher.formatErrorMessage("Task", searchContext);
-            throw getProblemsService().getInternalReporter().throwing(new TaskSelectionException(message), matcher.problemId(), spec -> {
+            throw problemsService.getInternalReporter().throwing(new TaskSelectionException(message), matcher.problemId(), spec -> {
                 configureProblem(spec, context);
                 spec.contextualLabel(message);
             });
@@ -105,9 +102,9 @@ public class DefaultTaskSelector implements TaskSelector {
         String message = String.format("Cannot locate %s that match '%s' as %s", context.getType(), context.getOriginalPath(),
             matcher.formatErrorMessage("task", searchContext));
 
-        throw getProblemsService().getInternalReporter().throwing(new TaskSelectionException(message) /* this instead of cause */, matcher.problemId(), spec ->
+        throw problemsService.getInternalReporter().throwing(new TaskSelectionException(message) /* this instead of cause */, matcher.problemId(), spec ->
             configureProblem(spec, context)
-              .contextualLabel(message)
+                .contextualLabel(message)
         );
     }
 

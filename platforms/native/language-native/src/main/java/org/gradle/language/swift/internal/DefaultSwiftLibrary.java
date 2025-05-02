@@ -19,6 +19,7 @@ package org.gradle.language.swift.internal;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
@@ -47,8 +48,8 @@ public class DefaultSwiftLibrary extends DefaultSwiftComponent<SwiftBinary> impl
     private final DefaultLibraryDependencies dependencies;
 
     @Inject
-    public DefaultSwiftLibrary(String name, ObjectFactory objectFactory, ConfigurationContainer configurations) {
-        super(name, objectFactory);
+    public DefaultSwiftLibrary(String name, ObjectFactory objectFactory, ProjectLayout projectLayout, ConfigurationContainer configurations) {
+        super(name, objectFactory, projectLayout);
         this.objectFactory = objectFactory;
         this.configurations = configurations;
         this.developmentBinary = objectFactory.property(SwiftBinary.class);

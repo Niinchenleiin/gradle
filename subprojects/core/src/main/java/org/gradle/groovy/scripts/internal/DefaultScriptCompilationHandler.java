@@ -91,11 +91,13 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
     private static final int HAS_METHODS_FLAG = 2;
 
     private final Deleter deleter;
+    private final Problems problemsService;
     private final Map<String, List<String>> simpleNameToFQN;
 
     @Inject
-    public DefaultScriptCompilationHandler(Deleter deleter, ImportsReader importsReader) {
+    public DefaultScriptCompilationHandler(Deleter deleter, Problems problemsService, ImportsReader importsReader) {
         this.deleter = deleter;
+        this.problemsService = problemsService;
         this.simpleNameToFQN = importsReader.getSimpleNameToFullClassNamesMapping();
     }
 
@@ -177,11 +179,6 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
         }
     }
 
-    @Inject
-    protected Problems getProblemsService() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     private <M> void serializeMetadata(ScriptSource scriptSource, CompileOperation<M> extractingTransformer, File metadataDir, boolean emptyScript, boolean hasMethods) {
         File metadataFile = new File(metadataDir, METADATA_FILE_NAME);
         try {
@@ -221,7 +218,7 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
         int lineNumber = syntaxError == null ? -1 : syntaxError.getLine();
         String message = String.format("Could not compile %s.", source.getDisplayName());
         ProblemId problemId = ProblemId.create(TextUtil.screamingSnakeToKebabCase("compilation-failed"), "Groovy DSL script compilation problem", GradleCoreProblemGroup.compilation().groovyDsl());
-        throw ((InternalProblems) getProblemsService()).getInternalReporter().throwing(new ScriptCompilationException(message, e, source, lineNumber), problemId, builder -> builder
+        throw ((InternalProblems) problemsService).getInternalReporter().throwing(new ScriptCompilationException(message, e, source, lineNumber), problemId, builder -> builder
             .contextualLabel(message)
             .lineInFileLocation(source.getFileName(), lineNumber)
             .severity(Severity.ERROR)

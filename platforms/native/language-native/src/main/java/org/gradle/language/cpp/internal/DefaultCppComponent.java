@@ -20,6 +20,7 @@ import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
@@ -48,8 +49,8 @@ public abstract class DefaultCppComponent extends DefaultNativeComponent impleme
     private final SetProperty<TargetMachine> targetMachines;
 
     @Inject
-    public DefaultCppComponent(String name, ObjectFactory objectFactory) {
-        super(objectFactory);
+    public DefaultCppComponent(String name, ObjectFactory objectFactory, ProjectLayout projectLayout) {
+        super(objectFactory, projectLayout);
         this.name = name;
         cppSource = createSourceView("src/" + name + "/cpp", Arrays.asList("cpp", "c++", "cc"));
         privateHeaders = objectFactory.fileCollection();

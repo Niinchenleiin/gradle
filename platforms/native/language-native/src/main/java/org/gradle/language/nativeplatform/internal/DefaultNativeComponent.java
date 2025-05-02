@@ -25,16 +25,17 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.internal.DisplayName;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public abstract class DefaultNativeComponent {
     private final ConfigurableFileCollection source;
+    private final ProjectLayout projectLayout;
 
-    public DefaultNativeComponent(ObjectFactory objectFactory) {
+    public DefaultNativeComponent(ObjectFactory objectFactory, ProjectLayout projectLayout) {
         // TODO - introduce a new 'var' data structure that allows these conventions to be configured explicitly
         source = objectFactory.fileCollection();
+        this.projectLayout = projectLayout;
     }
 
     public abstract DisplayName getDisplayName();
@@ -52,9 +53,8 @@ public abstract class DefaultNativeComponent {
         action.execute(source);
     }
 
-    @Inject
     protected ProjectLayout getProjectLayout() {
-        throw new UnsupportedOperationException();
+        return projectLayout;
     }
 
     // TODO - this belongs with the 'var' data structure

@@ -32,7 +32,6 @@ import org.gradle.api.internal.file.TestFiles
 import org.gradle.api.internal.initialization.ClassLoaderScope
 import org.gradle.api.internal.initialization.RootClassLoaderScope
 import org.gradle.api.internal.initialization.loadercache.DummyClassLoaderCache
-import org.gradle.api.problems.Problems
 import org.gradle.configuration.ImportsReader
 import org.gradle.groovy.scripts.ScriptCompilationException
 import org.gradle.groovy.scripts.ScriptSource
@@ -99,13 +98,9 @@ class DefaultScriptCompilationHandlerTest extends Specification {
         importsReader = Stub(ImportsReader.class)
         scriptCompilationHandler = new DefaultScriptCompilationHandler(
             TestFiles.deleter(),
+            TestUtil.problemsService(),
             importsReader
-        ) {
-            @Override
-            protected Problems getProblemsService() {
-                return TestUtil.problemsService()
-            }
-        }
+        )
 
         scriptCacheDir = new File(testProjectDir, "cache")
         scriptClassPath = DefaultClassPath.of(scriptCacheDir)

@@ -18,6 +18,7 @@ package org.gradle.nativeplatform.test.xctest.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.internal.Describables;
@@ -48,8 +49,8 @@ public class DefaultSwiftXCTestSuite extends DefaultSwiftComponent<SwiftXCTestBi
     private final DefaultComponentDependencies dependencies;
 
     @Inject
-    public DefaultSwiftXCTestSuite(String name, ObjectFactory objectFactory) {
-        super(name, SwiftXCTestBinary.class, objectFactory);
+    public DefaultSwiftXCTestSuite(String name, ObjectFactory objectFactory, ProjectLayout projectLayout) {
+        super(name, SwiftXCTestBinary.class, objectFactory, projectLayout);
         this.testedComponent = objectFactory.property(SwiftComponent.class);
         this.objectFactory = objectFactory;
         this.testBinary = objectFactory.property(SwiftXCTestBinary.class);

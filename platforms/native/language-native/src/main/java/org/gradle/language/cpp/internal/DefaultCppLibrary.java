@@ -24,6 +24,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.api.internal.attributes.AttributesFactory;
 import org.gradle.api.model.ObjectFactory;
@@ -56,8 +57,8 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
     private final DefaultLibraryDependencies dependencies;
 
     @Inject
-    public DefaultCppLibrary(String name, ObjectFactory objectFactory, RoleBasedConfigurationContainerInternal configurations, AttributesFactory attributesFactory) {
-        super(name, objectFactory);
+    public DefaultCppLibrary(String name, ObjectFactory objectFactory, ProjectLayout projectLayout, RoleBasedConfigurationContainerInternal configurations, AttributesFactory attributesFactory) {
+        super(name, objectFactory, projectLayout);
         this.objectFactory = objectFactory;
         this.developmentBinary = objectFactory.property(CppBinary.class);
         publicHeaders = objectFactory.fileCollection();
