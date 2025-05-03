@@ -69,9 +69,6 @@ import org.gradle.nativeplatform.Repositories;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.TargetedNativeComponent;
-import org.gradle.nativeplatform.internal.DefaultBuildTypeContainer;
-import org.gradle.nativeplatform.internal.DefaultFlavor;
-import org.gradle.nativeplatform.internal.DefaultFlavorContainer;
 import org.gradle.nativeplatform.internal.DefaultNativeExecutableBinarySpec;
 import org.gradle.nativeplatform.internal.DefaultNativeExecutableSpec;
 import org.gradle.nativeplatform.internal.DefaultNativeLibrarySpec;
@@ -97,7 +94,6 @@ import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 import org.gradle.nativeplatform.tasks.PrefixHeaderFileGenerateTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
-import org.gradle.nativeplatform.toolchain.internal.DefaultNativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinaryTasks;
@@ -111,7 +107,6 @@ import org.gradle.platform.base.internal.HasIntermediateOutputsComponentSpec;
 import org.gradle.platform.base.internal.PlatformResolvers;
 import org.gradle.platform.base.internal.dependents.DependentBinariesResolver;
 
-import javax.inject.Inject;
 import java.io.File;
 
 /**
@@ -119,22 +114,10 @@ import java.io.File;
  */
 @Incubating
 public abstract class NativeComponentModelPlugin implements Plugin<Project> {
-    private final Instantiator instantiator;
-    private CollectionCallbackActionDecorator collectionCallbackActionDecorator;
-
-    @Inject
-    public NativeComponentModelPlugin(Instantiator instantiator, CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
-        this.instantiator = instantiator;
-        this.collectionCallbackActionDecorator = collectionCallbackActionDecorator;
-    }
-
     @Override
     public void apply(final Project project) {
         project.getPluginManager().apply(ComponentModelBasePlugin.class);
-
-        project.getExtensions().create(BuildTypeContainer.class, "buildTypes", DefaultBuildTypeContainer.class, instantiator, collectionCallbackActionDecorator);
-        project.getExtensions().create(FlavorContainer.class, "flavors", DefaultFlavorContainer.class, instantiator, collectionCallbackActionDecorator);
-        project.getExtensions().create(NativeToolChainRegistry.class, "toolChains", DefaultNativeToolChainRegistry.class, instantiator, collectionCallbackActionDecorator);
+        project.getPluginManager().apply(NativeComponentPlugin.class);
     }
 
     static class Rules extends RuleSource {
@@ -223,27 +206,6 @@ public abstract class NativeComponentModelPlugin implements Plugin<Project> {
         void registerNativeExecutableBinaryType(TypeBuilder<NativeExecutableBinarySpec> builder) {
             builder.defaultImplementation(DefaultNativeExecutableBinarySpec.class);
             builder.internalView(NativeExecutableBinarySpecInternal.class);
-        }
-
-        @Finalize
-        public void createDefaultToolChain(NativeToolChainRegistryInternal toolChains) {
-            if (toolChains.isEmpty()) {
-                toolChains.addDefaultToolChains();
-            }
-        }
-
-        @Finalize
-        public void createDefaultBuildTypes(BuildTypeContainer buildTypes) {
-            if (buildTypes.isEmpty()) {
-                buildTypes.create("debug");
-            }
-        }
-
-        @Finalize
-        public void createDefaultFlavor(FlavorContainer flavors) {
-            if (flavors.isEmpty()) {
-                flavors.create(DefaultFlavor.DEFAULT);
-            }
         }
 
         @Finalize

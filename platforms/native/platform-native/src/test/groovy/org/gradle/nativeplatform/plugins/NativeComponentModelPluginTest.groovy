@@ -50,10 +50,7 @@ import static org.gradle.model.internal.type.ModelTypes.modelMap
 import static org.gradle.util.internal.CollectionUtils.single
 
 class NativeComponentModelPluginTest extends AbstractProjectBuilderSpec {
-    def registry
-
     def setup() {
-        registry = project.modelRegistry
         project.pluginManager.apply(NativeComponentModelPlugin)
     }
 
@@ -66,11 +63,11 @@ class NativeComponentModelPluginTest extends AbstractProjectBuilderSpec {
         project.plugins.hasPlugin(NativeComponentModelPlugin)
     }
 
-    public <T> T realizeModelElement(String path, Class<T> type) {
+    <T> T realizeModelElement(String path, Class<T> type) {
         realizeModelElement(path, ModelType.of(type))
     }
 
-    public <T> T realizeModelElement(String path, ModelType<T> type) {
+    <T> T realizeModelElement(String path, ModelType<T> type) {
         project.modelRegistry.realize(path, type)
     }
 

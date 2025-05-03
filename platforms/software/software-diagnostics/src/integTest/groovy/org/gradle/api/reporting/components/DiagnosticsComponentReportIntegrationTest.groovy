@@ -44,10 +44,11 @@ plugins {
     id 'c'
 }
 
-model {
+
     toolChains {
         ${toolChain.buildScriptConfig}
     }
+model {
     components {
         nativeLib(NativeLibrarySpec)
     }
